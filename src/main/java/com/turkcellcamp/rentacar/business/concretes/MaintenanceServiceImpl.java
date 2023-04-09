@@ -8,7 +8,6 @@ import com.turkcellcamp.rentacar.business.dto.responses.create.CreateMaintenance
 import com.turkcellcamp.rentacar.business.dto.responses.get.GetAllMaintenancesResponse;
 import com.turkcellcamp.rentacar.business.dto.responses.get.GetMaintenanceResponse;
 import com.turkcellcamp.rentacar.business.dto.responses.update.UpdateMaintenanceResponse;
-import com.turkcellcamp.rentacar.entities.Car;
 import com.turkcellcamp.rentacar.entities.Maintenance;
 import com.turkcellcamp.rentacar.entities.enums.State;
 import com.turkcellcamp.rentacar.repository.MaintenanceRepository;
