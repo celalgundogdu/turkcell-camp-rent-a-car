@@ -56,9 +56,10 @@ public class CarServiceImpl implements CarService {
 
         Car car = mapper.map(request, Car.class);
         car.setId(0);
-        carRepository.save(car);
+        car.setState(State.AVAILABLE);
+        Car createdCar = carRepository.save(car);
 
-        CreateCarResponse response = mapper.map(car, CreateCarResponse.class);
+        CreateCarResponse response = mapper.map(createdCar, CreateCarResponse.class);
         return response;
     }
 
@@ -68,9 +69,9 @@ public class CarServiceImpl implements CarService {
 
         Car car = mapper.map(request, Car.class);
         car.setId(id);
-        Car createdCar = carRepository.save(car);
+        Car updatedCar = carRepository.save(car);
 
-        UpdateCarResponse response = mapper.map(createdCar, UpdateCarResponse.class);
+        UpdateCarResponse response = mapper.map(updatedCar, UpdateCarResponse.class);
         return response;
     }
 
@@ -81,8 +82,11 @@ public class CarServiceImpl implements CarService {
     }
 
     @Override
-    public Car findCarById(int id) {
-        return carRepository.findById(id).orElseThrow();
+    public void changeState(int carId, State state) {
+        checkIfCarExistsById(carId);
+        Car car = carRepository.findById(carId).orElseThrow();
+        car.setState(state);
+        carRepository.save(car);
     }
 
     private void checkIfCarExistsById(int id) {

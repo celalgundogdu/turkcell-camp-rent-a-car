@@ -14,7 +14,6 @@ public class CreateCarRequest {
 
     private int modelYear;
     private String plate;
-    private State state;
     private double dailyPrice;
     private int modelId;
 }

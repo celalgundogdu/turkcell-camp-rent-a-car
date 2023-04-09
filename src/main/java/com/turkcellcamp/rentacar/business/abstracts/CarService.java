@@ -23,5 +23,5 @@ public interface CarService {
 
     void delete(int id);
 
-    Car findCarById(int id);
+    void changeState(int carId, State state);
 }

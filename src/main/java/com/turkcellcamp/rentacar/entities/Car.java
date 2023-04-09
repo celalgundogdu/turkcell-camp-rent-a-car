@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -37,6 +39,6 @@ public class Car {
     @JoinColumn(name = "model_id")
     private Model model;
 
-    @OneToOne(mappedBy = "car")
-    private Maintenance maintenance;
+    @OneToMany(mappedBy = "car")
+    private List<Maintenance> maintenanceList;
 }

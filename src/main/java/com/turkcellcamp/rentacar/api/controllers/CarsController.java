@@ -21,7 +21,7 @@ public class CarsController {
 
     private final CarService carService;
 
-    @GetMapping // "/api/cars?state=maintenance"
+    @GetMapping
     public List<GetAllCarsResponse> getAll(@RequestParam(required = false) State state) {
         return carService.getAll(state);
     }

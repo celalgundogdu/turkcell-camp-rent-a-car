@@ -48,11 +48,14 @@ public class MaintenancesController {
         return maintenanceService.update(id, request);
     }
 
+    @PutMapping("/return")
+    public GetMaintenanceResponse returnCarFromMaintenance(@RequestParam int carId) {
+        return maintenanceService.returnCarFromMaintenance(carId);
+    }
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable int id) {
         maintenanceService.delete(id);
     }
-
-
 }

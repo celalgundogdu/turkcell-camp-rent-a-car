@@ -17,5 +17,6 @@ public class GetCarResponse {
     private String plate;
     private State state;
     private double dailyPrice;
-    //private GetAllModelsResponse model;
+    private String modelName;
+    private String modelBrandName;
 }
