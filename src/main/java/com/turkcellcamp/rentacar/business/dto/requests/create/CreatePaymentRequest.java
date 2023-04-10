@@ -10,10 +10,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateRentalRequest {
+public class CreatePaymentRequest extends PaymentRequest {
 
-    private double dailyPrice;
-    private int rentedForDays;
-    private int carId;
-    private PaymentRequest paymentRequest;
+    private double balance;
 }

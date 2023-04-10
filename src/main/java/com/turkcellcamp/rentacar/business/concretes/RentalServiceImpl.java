@@ -1,6 +1,7 @@
 package com.turkcellcamp.rentacar.business.concretes;
 
 import com.turkcellcamp.rentacar.business.abstracts.CarService;
+import com.turkcellcamp.rentacar.business.abstracts.PaymentService;
 import com.turkcellcamp.rentacar.business.abstracts.RentalService;
 import com.turkcellcamp.rentacar.business.dto.requests.create.CreateRentalRequest;
 import com.turkcellcamp.rentacar.business.dto.requests.update.UpdateRentalRequest;
@@ -8,6 +9,7 @@ import com.turkcellcamp.rentacar.business.dto.responses.create.CreateRentalRespo
 import com.turkcellcamp.rentacar.business.dto.responses.get.GetAllRentalsResponse;
 import com.turkcellcamp.rentacar.business.dto.responses.get.GetRentalResponse;
 import com.turkcellcamp.rentacar.business.dto.responses.update.UpdateRentalResponse;
+import com.turkcellcamp.rentacar.core.dto.CreateRentalPaymentRequest;
 import com.turkcellcamp.rentacar.entities.Rental;
 import com.turkcellcamp.rentacar.entities.enums.State;
 import com.turkcellcamp.rentacar.repository.RentalRepository;
@@ -24,6 +26,7 @@ public class RentalServiceImpl implements RentalService {
 
     private final RentalRepository rentalRepository;
     private final CarService carService;
+    private final PaymentService paymentService;
     private final ModelMapper mapper;
 
     @Override
@@ -53,6 +56,12 @@ public class RentalServiceImpl implements RentalService {
         rental.setId(0);
         rental.setTotalPrice(calculateTotalPrice(rental));
         rental.setStartDate(LocalDateTime.now());
+
+        CreateRentalPaymentRequest paymentRequest = new CreateRentalPaymentRequest();
+        mapper.map(request.getPaymentRequest(), paymentRequest);
+        paymentRequest.setPrice(calculateTotalPrice(rental));
+        paymentService.processRentalPayment(paymentRequest);
+
         Rental createdRental = rentalRepository.save(rental);
         carService.changeState(request.getCarId(), State.RENTED);
 

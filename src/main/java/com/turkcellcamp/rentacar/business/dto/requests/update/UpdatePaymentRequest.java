@@ -1,4 +1,4 @@
-package com.turkcellcamp.rentacar.business.dto.requests.create;
+package com.turkcellcamp.rentacar.business.dto.requests.update;
 
 import com.turkcellcamp.rentacar.business.dto.requests.PaymentRequest;
 import lombok.AllArgsConstructor;
@@ -10,10 +10,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateRentalRequest {
+public class UpdatePaymentRequest extends PaymentRequest {
 
-    private double dailyPrice;
-    private int rentedForDays;
-    private int carId;
-    private PaymentRequest paymentRequest;
+    private double balance;
 }
