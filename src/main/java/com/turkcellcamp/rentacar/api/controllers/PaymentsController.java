@@ -7,6 +7,7 @@ import com.turkcellcamp.rentacar.business.dto.responses.create.CreatePaymentResp
 import com.turkcellcamp.rentacar.business.dto.responses.get.GetAllPaymentsResponse;
 import com.turkcellcamp.rentacar.business.dto.responses.get.GetPaymentResponse;
 import com.turkcellcamp.rentacar.business.dto.responses.update.UpdatePaymentResponse;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,12 +31,12 @@ public class PaymentsController {
     }
 
     @PostMapping
-    public CreatePaymentResponse add(@RequestBody CreatePaymentRequest request) {
+    public CreatePaymentResponse add(@Valid @RequestBody CreatePaymentRequest request) {
         return service.add(request);
     }
 
     @PutMapping("/{id}")
-    public UpdatePaymentResponse update(@PathVariable int id, @RequestBody UpdatePaymentRequest request) {
+    public UpdatePaymentResponse update(@Valid @PathVariable int id, @RequestBody UpdatePaymentRequest request) {
         return service.update(id, request);
     }
 
