@@ -12,6 +12,7 @@ import com.turkcellcamp.rentacar.business.dto.responses.get.GetAllRentalsRespons
 import com.turkcellcamp.rentacar.business.dto.responses.get.GetCarResponse;
 import com.turkcellcamp.rentacar.business.dto.responses.get.GetRentalResponse;
 import com.turkcellcamp.rentacar.business.dto.responses.update.UpdateRentalResponse;
+import com.turkcellcamp.rentacar.business.rules.RentalBusinessRules;
 import com.turkcellcamp.rentacar.common.dto.CreateRentalPaymentRequest;
 import com.turkcellcamp.rentacar.entities.Rental;
 import com.turkcellcamp.rentacar.entities.enums.State;
@@ -28,6 +29,7 @@ import java.util.List;
 public class RentalServiceImpl implements RentalService {
 
     private final RentalRepository rentalRepository;
+    private final RentalBusinessRules rules;
     private final CarService carService;
     private final PaymentService paymentService;
     private final InvoiceService invoiceService;
@@ -36,7 +38,6 @@ public class RentalServiceImpl implements RentalService {
     @Override
     public List<GetAllRentalsResponse> getAll() {
         List<Rental> rentalList = rentalRepository.findAll();
-
         List<GetAllRentalsResponse> response = rentalList.stream()
                 .map(rental -> mapper.map(rental, GetAllRentalsResponse.class))
                 .toList();
@@ -46,16 +47,15 @@ public class RentalServiceImpl implements RentalService {
 
     @Override
     public GetRentalResponse getById(int id) {
-        checkIfRentalExistsById(id);
+        rules.checkIfRentalExistsById(id);
         Rental rental = rentalRepository.findById(id).orElseThrow();
-
         GetRentalResponse response = mapper.map(rental, GetRentalResponse.class);
         return response;
     }
 
     @Override
     public CreateRentalResponse add(CreateRentalRequest request) {
-        checkIfCarIsAvailable(request.getCarId());
+        rules.checkIfCarIsAvailable(carService.getById(request.getCarId()).getState());
         Rental rental = mapper.map(request, Rental.class);
         rental.setId(0);
         rental.setTotalPrice(calculateTotalPrice(rental));
@@ -79,34 +79,21 @@ public class RentalServiceImpl implements RentalService {
 
     @Override
     public UpdateRentalResponse update(int id, UpdateRentalRequest request) {
-        checkIfRentalExistsById(id);
+        rules.checkIfRentalExistsById(id);
         Rental rental = mapper.map(request, Rental.class);
         rental.setId(id);
         rental.setTotalPrice(calculateTotalPrice(rental));
         Rental updatedRental = rentalRepository.save(rental);
-
         UpdateRentalResponse response = mapper.map(updatedRental, UpdateRentalResponse.class);
         return response;
     }
 
     @Override
     public void delete(int id) {
-        checkIfRentalExistsById(id);
+        rules.checkIfRentalExistsById(id);
         int carId = rentalRepository.findById(id).get().getCar().getId();
         carService.changeState(carId, State.AVAILABLE);
         rentalRepository.deleteById(id);
-    }
-
-    private void checkIfRentalExistsById(int id) {
-        if (!rentalRepository.existsById(id)) {
-            throw new RuntimeException("Rental does not exists");
-        }
-    }
-
-    private void checkIfCarIsAvailable(int carId) {
-        if (!carService.getById(carId).getState().equals(State.AVAILABLE)) {
-            throw new RuntimeException("Car is not available");
-        }
     }
 
     private double calculateTotalPrice(Rental rental) {

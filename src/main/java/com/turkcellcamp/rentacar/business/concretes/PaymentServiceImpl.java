@@ -8,6 +8,7 @@ import com.turkcellcamp.rentacar.business.dto.responses.create.CreatePaymentResp
 import com.turkcellcamp.rentacar.business.dto.responses.get.GetAllPaymentsResponse;
 import com.turkcellcamp.rentacar.business.dto.responses.get.GetPaymentResponse;
 import com.turkcellcamp.rentacar.business.dto.responses.update.UpdatePaymentResponse;
+import com.turkcellcamp.rentacar.business.rules.PaymentBusinessRules;
 import com.turkcellcamp.rentacar.common.dto.CreateRentalPaymentRequest;
 import com.turkcellcamp.rentacar.entities.Payment;
 import com.turkcellcamp.rentacar.repository.PaymentRepository;
@@ -22,13 +23,13 @@ import java.util.List;
 public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
+    private final PaymentBusinessRules rules;
     private final PosService posService;
     private final ModelMapper mapper;
 
     @Override
     public List<GetAllPaymentsResponse> getAll() {
         List<Payment> paymentList = paymentRepository.findAll();
-
         List<GetAllPaymentsResponse> response = paymentList
                 .stream()
                 .map(payment -> mapper.map(payment, GetAllPaymentsResponse.class))
@@ -39,7 +40,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public GetPaymentResponse getById(int id) {
-        checkIfPaymentExists(id);
+        rules.checkIfPaymentExists(id);
         Payment payment = paymentRepository.findById(id).orElseThrow();
         GetPaymentResponse response = mapper.map(payment, GetPaymentResponse.class);
         return response;
@@ -47,69 +48,37 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public CreatePaymentResponse add(CreatePaymentRequest request) {
-        checkIfCardExists(request.getCardNumber());
+        rules.checkIfCardExists(request.getCardNumber());
         Payment payment = mapper.map(request, Payment.class);
         payment.setId(0);
         Payment createdPayment = paymentRepository.save(payment);
-
         CreatePaymentResponse response = mapper.map(createdPayment, CreatePaymentResponse.class);
         return response;
     }
 
     @Override
     public UpdatePaymentResponse update(int id, UpdatePaymentRequest request) {
-        checkIfPaymentExists(id);
+        rules.checkIfPaymentExists(id);
         Payment payment = mapper.map(request, Payment.class);
         payment.setId(id);
         Payment updatedPayment = paymentRepository.save(payment);
-
         UpdatePaymentResponse response = mapper.map(updatedPayment, UpdatePaymentResponse.class);
         return response;
     }
 
     @Override
     public void delete(int id) {
-        checkIfPaymentExists(id);
+        rules.checkIfPaymentExists(id);
         paymentRepository.deleteById(id);
     }
 
     @Override
     public void processRentalPayment(CreateRentalPaymentRequest request) {
-        checkIfPaymentIsValid(request);
+        rules.checkIfPaymentIsValid(request);
         Payment payment = paymentRepository.findByCardNumber(request.getCardNumber());
-        checkIfBalanceIsEnough(request.getPrice(), payment.getBalance());
+        rules.checkIfBalanceIsEnough(request.getPrice(), payment.getBalance());
         posService.pay();
         payment.setBalance(payment.getBalance() - request.getPrice());
         paymentRepository.save(payment);
-    }
-
-    private void checkIfBalanceIsEnough(double price, double balance) {
-        if (price > balance) {
-            throw new RuntimeException("Insufficient balance");
-        }
-    }
-
-    private void checkIfPaymentIsValid(CreateRentalPaymentRequest request) {
-        if (!paymentRepository.existsByCardNumberAndCardHolderAndCardExpirationYearAndCardExpirationMonthAndCardCvv(
-                request.getCardNumber(),
-                request.getCardHolder(),
-                request.getCardExpirationYear(),
-                request.getCardExpirationMonth(),
-                request.getCardCvv()
-        )) {
-            throw new RuntimeException("Card is invalid");
-        }
-    }
-
-    private void checkIfPaymentExists(int id) {
-        if (!paymentRepository.existsById(id)) {
-            throw new RuntimeException("Payment does not exist");
-        }
-    }
-
-    private void checkIfCardExists(String cardNumber) {
-        if (paymentRepository.existsByCardNumber(cardNumber)) {
-            throw new RuntimeException("Card already in use");
-        }
     }
 }

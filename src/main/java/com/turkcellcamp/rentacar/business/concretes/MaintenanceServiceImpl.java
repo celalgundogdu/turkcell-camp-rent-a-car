@@ -8,6 +8,7 @@ import com.turkcellcamp.rentacar.business.dto.responses.create.CreateMaintenance
 import com.turkcellcamp.rentacar.business.dto.responses.get.GetAllMaintenancesResponse;
 import com.turkcellcamp.rentacar.business.dto.responses.get.GetMaintenanceResponse;
 import com.turkcellcamp.rentacar.business.dto.responses.update.UpdateMaintenanceResponse;
+import com.turkcellcamp.rentacar.business.rules.MaintenanceBusinessRules;
 import com.turkcellcamp.rentacar.entities.Maintenance;
 import com.turkcellcamp.rentacar.entities.enums.State;
 import com.turkcellcamp.rentacar.repository.MaintenanceRepository;
@@ -23,13 +24,13 @@ import java.util.List;
 public class MaintenanceServiceImpl implements MaintenanceService {
 
     private final MaintenanceRepository maintenanceRepository;
+    private final MaintenanceBusinessRules rules;
     private final CarService carService;
     private final ModelMapper mapper;
 
     @Override
     public List<GetAllMaintenancesResponse> getAll() {
         List<Maintenance> maintenanceList = maintenanceRepository.findAll();
-
         List<GetAllMaintenancesResponse> response = maintenanceList
                 .stream()
                 .map(maintenance -> mapper.map(maintenance, GetAllMaintenancesResponse.class))
@@ -40,30 +41,28 @@ public class MaintenanceServiceImpl implements MaintenanceService {
 
     @Override
     public GetMaintenanceResponse getById(int id) {
-        checkIfMaintenanceExistsById(id);
+        rules.checkIfMaintenanceExistsById(id);
         Maintenance maintenance = maintenanceRepository.findById(id).orElseThrow();
-
         GetMaintenanceResponse response = mapper.map(maintenance, GetMaintenanceResponse.class);
         return response;
     }
 
     @Override
     public GetMaintenanceResponse returnCarFromMaintenance(int carId) {
-        checkIfCarIsNotUnderMaintenance(carId);
+        rules.checkIfCarIsNotUnderMaintenance(carId);
         Maintenance maintenance = maintenanceRepository.findByCarIdAndIsCompletedIsFalse(carId);
         maintenance.setCompleted(true);
         maintenance.setEndDate(LocalDateTime.now());
         Maintenance completedMaintenance = maintenanceRepository.save(maintenance);
         carService.changeState(carId, State.AVAILABLE);
-
         GetMaintenanceResponse response = mapper.map(completedMaintenance, GetMaintenanceResponse.class);
         return response;
     }
 
     @Override
     public CreateMaintenanceResponse add(CreateMaintenanceRequest request) {
-        checkIfCarUnderMaintenance(request.getCarId());
-        checkCarAvailabilityForMaintenance(request.getCarId());
+        rules.checkIfCarUnderMaintenance(request.getCarId());
+        rules.checkCarAvailabilityForMaintenance(carService.getById(request.getCarId()).getState());
         Maintenance maintenance = mapper.map(request, Maintenance.class);
         maintenance.setId(0);
         maintenance.setCompleted(false);
@@ -71,15 +70,14 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         maintenance.setEndDate(null);
         Maintenance createdMaintenance = maintenanceRepository.save(maintenance);
         carService.changeState(request.getCarId(), State.MAINTENANCE);
-
         CreateMaintenanceResponse response = mapper.map(createdMaintenance, CreateMaintenanceResponse.class);
         return response;
     }
 
     @Override
     public UpdateMaintenanceResponse update(int id, UpdateMaintenanceRequest request) {
-        checkIfMaintenanceExistsById(id);
-        checkCarAvailabilityForMaintenance(request.getCarId());
+        rules.checkIfMaintenanceExistsById(id);
+        rules.checkCarAvailabilityForMaintenance(carService.getById(request.getCarId()).getState());
         Maintenance maintenance = mapper.map(request, Maintenance.class);
         maintenance.setId(id);
         Maintenance updatedMaintenance = maintenanceRepository.save(maintenance);
@@ -90,33 +88,9 @@ public class MaintenanceServiceImpl implements MaintenanceService {
 
     @Override
     public void delete(int id) {
-        checkIfMaintenanceExistsById(id);
+        rules.checkIfMaintenanceExistsById(id);
         makeCarAvailableIfIsCompletedFalse(id);
         maintenanceRepository.deleteById(id);
-    }
-
-    private void checkIfMaintenanceExistsById(int id) {
-        if (!maintenanceRepository.existsById(id)) {
-            throw new RuntimeException("Maintenance does not exists with id: " + id);
-        }
-    }
-
-    private void checkIfCarUnderMaintenance(int carId) {
-        if (maintenanceRepository.existsByCarIdAndIsCompletedIsFalse(carId)) {
-            throw new RuntimeException("Car is already under maintenance");
-        }
-    }
-
-    private void checkIfCarIsNotUnderMaintenance(int carId) {
-        if (!maintenanceRepository.existsByCarIdAndIsCompletedIsFalse(carId)) {
-            throw new RuntimeException("Car is not under maintenance");
-        }
-    }
-
-    private void checkCarAvailabilityForMaintenance(int carId) {
-        if (carService.getById(carId).getState().equals(State.RENTED)) {
-            throw new RuntimeException("Car can not be taken under maintenance since it is rented");
-        }
     }
 
     private void makeCarAvailableIfIsCompletedFalse(int id) {

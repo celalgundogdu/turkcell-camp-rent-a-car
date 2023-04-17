@@ -7,6 +7,7 @@ import com.turkcellcamp.rentacar.business.dto.responses.create.CreateInvoiceResp
 import com.turkcellcamp.rentacar.business.dto.responses.get.GetAllInvoicesResponse;
 import com.turkcellcamp.rentacar.business.dto.responses.get.GetInvoiceResponse;
 import com.turkcellcamp.rentacar.business.dto.responses.update.UpdateInvoiceResponse;
+import com.turkcellcamp.rentacar.business.rules.InvoiceBusinessRules;
 import com.turkcellcamp.rentacar.entities.Invoice;
 import com.turkcellcamp.rentacar.repository.InvoiceRepository;
 import lombok.AllArgsConstructor;
@@ -20,12 +21,12 @@ import java.util.List;
 public class InvoiceServiceImpl implements InvoiceService {
 
     private final InvoiceRepository invoiceRepository;
+    private final InvoiceBusinessRules rules;
     private final ModelMapper mapper;
 
     @Override
     public List<GetAllInvoicesResponse> getAll() {
         List<Invoice> invoiceList = invoiceRepository.findAll();
-
         List<GetAllInvoicesResponse> response = invoiceList
                 .stream()
                 .map(invoice -> mapper.map(invoice, GetAllInvoicesResponse.class))
@@ -36,9 +37,8 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public GetInvoiceResponse getById(int id) {
-        checkIfInvoiceExistsById(id);
+        rules.checkIfInvoiceExistsById(id);
         Invoice invoice = invoiceRepository.findById(id).orElseThrow();
-
         GetInvoiceResponse response = mapper.map(invoice, GetInvoiceResponse.class);
         return response;
     }
@@ -49,36 +49,28 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoice.setId(0);
         invoice.setTotalPrice(calculateTotalPrice(invoice));
         Invoice createdInvoice = invoiceRepository.save(invoice);
-
         CreateInvoiceResponse response = mapper.map(createdInvoice, CreateInvoiceResponse.class);
         return response;
     }
 
     @Override
     public UpdateInvoiceResponse update(int id, UpdateInvoiceRequest request) {
-        checkIfInvoiceExistsById(id);
+        rules.checkIfInvoiceExistsById(id);
         Invoice invoice = mapper.map(request, Invoice.class);
         invoice.setId(id);
         invoice.setTotalPrice(calculateTotalPrice(invoice));
         Invoice updatedInvoice = invoiceRepository.save(invoice);
-
         UpdateInvoiceResponse response = mapper.map(updatedInvoice, UpdateInvoiceResponse.class);
         return response;
     }
 
     @Override
     public void delete(int id) {
-        checkIfInvoiceExistsById(id);
+        rules.checkIfInvoiceExistsById(id);
         invoiceRepository.deleteById(id);
     }
 
     private double calculateTotalPrice(Invoice invoice) {
         return invoice.getDailyPrice() * invoice.getRentedForDays();
-    }
-
-    private void checkIfInvoiceExistsById(int id) {
-        if (!invoiceRepository.existsById(id)) {
-            throw new RuntimeException("Invoice does not exist");
-        }
     }
 }
