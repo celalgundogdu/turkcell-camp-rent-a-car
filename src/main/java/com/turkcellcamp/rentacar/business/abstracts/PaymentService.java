@@ -6,12 +6,11 @@ import com.turkcellcamp.rentacar.business.dto.responses.create.CreatePaymentResp
 import com.turkcellcamp.rentacar.business.dto.responses.get.GetAllPaymentsResponse;
 import com.turkcellcamp.rentacar.business.dto.responses.get.GetPaymentResponse;
 import com.turkcellcamp.rentacar.business.dto.responses.update.UpdatePaymentResponse;
-import com.turkcellcamp.rentacar.core.dto.CreateRentalPaymentRequest;
+import com.turkcellcamp.rentacar.common.dto.CreateRentalPaymentRequest;
 
 import java.util.List;
 
 public interface PaymentService {
-
 
     List<GetAllPaymentsResponse> getAll();
 

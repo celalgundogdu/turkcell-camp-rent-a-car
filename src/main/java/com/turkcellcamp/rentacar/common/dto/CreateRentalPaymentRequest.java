@@ -1,4 +1,4 @@
-package com.turkcellcamp.rentacar.core.dto;
+package com.turkcellcamp.rentacar.common.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
