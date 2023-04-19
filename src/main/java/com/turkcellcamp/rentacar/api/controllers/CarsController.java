@@ -8,6 +8,7 @@ import com.turkcellcamp.rentacar.business.dto.responses.get.GetAllCarsResponse;
 import com.turkcellcamp.rentacar.business.dto.responses.get.GetCarResponse;
 import com.turkcellcamp.rentacar.business.dto.responses.update.UpdateCarResponse;
 import com.turkcellcamp.rentacar.entities.enums.State;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +34,7 @@ public class CarsController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CreateCarResponse add(@RequestBody CreateCarRequest request) {
+    public CreateCarResponse add(@Valid @RequestBody CreateCarRequest request) {
         return carService.add(request);
     }
 

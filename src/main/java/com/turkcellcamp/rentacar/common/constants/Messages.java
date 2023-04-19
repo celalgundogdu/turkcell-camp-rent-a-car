@@ -6,6 +6,7 @@ public class Messages {
         public static final String NOT_EXISTS = "Car does not exist";
         public static final String ALREADY_EXISTS = "Car already exists";
         public static final String NOT_AVAILABLE = "Car is not available";
+        public static final String DUPLICATE_PLATE = "Plate already in use";
     }
 
     public static class Model {
@@ -40,5 +41,9 @@ public class Messages {
 
     public static class Invoice {
         public static final String NOT_EXISTS = "Invoice does not exist";
+    }
+
+    public static class Exception {
+        public static final String VALIDATION = "Validation failed";
     }
 }

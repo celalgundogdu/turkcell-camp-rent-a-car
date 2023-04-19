@@ -2,6 +2,9 @@ package com.turkcellcamp.rentacar.business.rules;
 
 import com.turkcellcamp.rentacar.common.constants.Messages;
 import com.turkcellcamp.rentacar.common.dto.CreateRentalPaymentRequest;
+import com.turkcellcamp.rentacar.core.exceptions.BusinessException;
+import com.turkcellcamp.rentacar.core.exceptions.EntityAlreadyExistsException;
+import com.turkcellcamp.rentacar.core.exceptions.EntityNotFoundException;
 import com.turkcellcamp.rentacar.repository.PaymentRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,13 +17,13 @@ public class PaymentBusinessRules {
 
     public void checkIfPaymentExists(int id) {
         if (!paymentRepository.existsById(id)) {
-            throw new RuntimeException(Messages.Payment.NOT_EXISTS);
+            throw new EntityNotFoundException(Messages.Payment.NOT_EXISTS);
         }
     }
 
     public void checkIfCardExists(String cardNumber) {
         if (paymentRepository.existsByCardNumber(cardNumber)) {
-            throw new RuntimeException(Messages.Payment.CARD_ALREADY_EXISTS);
+            throw new EntityAlreadyExistsException(Messages.Payment.CARD_ALREADY_EXISTS);
         }
     }
 
@@ -32,13 +35,13 @@ public class PaymentBusinessRules {
                 request.getCardExpirationMonth(),
                 request.getCardCvv()
         )) {
-            throw new RuntimeException(Messages.Payment.NOT_VALID_PAYMENT);
+            throw new BusinessException(Messages.Payment.NOT_VALID_PAYMENT);
         }
     }
 
     public void checkIfBalanceIsEnough(double price, double balance) {
         if (price > balance) {
-            throw new RuntimeException(Messages.Payment.NOT_ENOUGH_MONEY);
+            throw new BusinessException(Messages.Payment.NOT_ENOUGH_MONEY);
         }
     }
 }

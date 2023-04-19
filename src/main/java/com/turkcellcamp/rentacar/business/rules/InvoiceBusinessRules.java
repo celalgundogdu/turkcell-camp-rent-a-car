@@ -1,6 +1,7 @@
 package com.turkcellcamp.rentacar.business.rules;
 
 import com.turkcellcamp.rentacar.common.constants.Messages;
+import com.turkcellcamp.rentacar.core.exceptions.EntityNotFoundException;
 import com.turkcellcamp.rentacar.repository.InvoiceRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,7 +14,7 @@ public class InvoiceBusinessRules {
 
     public void checkIfInvoiceExistsById(int id) {
         if (!invoiceRepository.existsById(id)) {
-            throw new RuntimeException(Messages.Invoice.NOT_EXISTS);
+            throw new EntityNotFoundException(Messages.Invoice.NOT_EXISTS);
         }
     }
 }
