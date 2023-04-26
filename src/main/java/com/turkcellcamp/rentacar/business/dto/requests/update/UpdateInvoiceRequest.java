@@ -28,14 +28,12 @@ public class UpdateInvoiceRequest {
     @NotBlank
     private String brandName;
 
-    @NotNull
+    @Min(2010)
     private int modelYear;
 
-    @NotNull
     @Min(0)
     private double dailyPrice;
 
-    @NotNull
     @Min(0)
     private int rentedForDays;
 

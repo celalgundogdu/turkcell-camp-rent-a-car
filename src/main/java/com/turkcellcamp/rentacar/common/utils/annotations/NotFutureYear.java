@@ -1,4 +1,4 @@
-package com.turkcellcamp.rentacar.validation;
+package com.turkcellcamp.rentacar.common.utils.annotations;
 
 import com.turkcellcamp.rentacar.common.constants.Messages;
 import jakarta.validation.Constraint;
@@ -11,10 +11,9 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = {UniquePlateValidator.class})
-public @interface UniquePlate {
-
-    String message() default Messages.Car.DUPLICATE_PLATE;
+@Constraint(validatedBy = {NotFutureYearValidator.class})
+public @interface NotFutureYear {
+    String message() default Messages.Car.MODEL_YEAR_NOT_VALID;
     Class<?>[] groups() default { };
     Class<? extends Payload>[] payload() default { };
 }

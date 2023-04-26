@@ -1,5 +1,6 @@
 package com.turkcellcamp.rentacar.business.dto.requests.create;
 
+import com.turkcellcamp.rentacar.common.utils.annotations.NotFutureYear;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -28,14 +29,13 @@ public class CreateInvoiceRequest {
     @NotBlank
     private String brandName;
 
-    @NotNull
+    @Min(2010)
+    @NotFutureYear
     private int modelYear;
 
-    @NotNull
     @Min(0)
     private double dailyPrice;
 
-    @NotNull
     @Min(0)
     private int rentedForDays;
 

@@ -14,7 +14,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class UpdatePaymentRequest extends PaymentRequest {
 
-    @NotNull
     @Min(value = 0)
     private double balance;
 }

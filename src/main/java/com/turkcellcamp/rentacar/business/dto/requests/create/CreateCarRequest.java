@@ -1,8 +1,9 @@
 package com.turkcellcamp.rentacar.business.dto.requests.create;
 
+import com.turkcellcamp.rentacar.common.constants.Messages;
 import com.turkcellcamp.rentacar.common.constants.Regex;
-import com.turkcellcamp.rentacar.validation.UniquePlate;
-import jakarta.validation.constraints.Max;
+import com.turkcellcamp.rentacar.common.utils.annotations.NotFutureYear;
+import com.turkcellcamp.rentacar.common.utils.annotations.UniquePlate;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -17,20 +18,18 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CreateCarRequest {
 
-    @NotNull
     @Min(2010)
-    @Max(2023)
+    @NotFutureYear
     private int modelYear;
 
     @NotNull
     @UniquePlate
-    @Pattern(regexp = Regex.PLATE, message = "Invalid plate pattern")
+    @Pattern(regexp = Regex.PLATE, message = Messages.Car.PLATE_NOT_VALID)
     private String plate;
 
-    @NotNull
     @Min(0)
     private double dailyPrice;
 
-    @NotNull
+    @Min(0)
     private int modelId;
 }

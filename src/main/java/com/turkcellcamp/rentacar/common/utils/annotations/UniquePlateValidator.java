@@ -1,7 +1,7 @@
-package com.turkcellcamp.rentacar.validation;
+package com.turkcellcamp.rentacar.common.utils.annotations;
 
 import com.turkcellcamp.rentacar.repository.CarRepository;
-import com.turkcellcamp.rentacar.validation.UniquePlate;
+import com.turkcellcamp.rentacar.common.utils.annotations.UniquePlate;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

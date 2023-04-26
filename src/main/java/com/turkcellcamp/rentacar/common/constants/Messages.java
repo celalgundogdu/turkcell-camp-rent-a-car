@@ -7,6 +7,8 @@ public class Messages {
         public static final String ALREADY_EXISTS = "Car already exists";
         public static final String NOT_AVAILABLE = "Car is not available";
         public static final String DUPLICATE_PLATE = "Plate already in use";
+        public static final String PLATE_NOT_VALID = "Invalid plate pattern";
+        public static final String MODEL_YEAR_NOT_VALID = "Invalid model year";
     }
 
     public static class Model {
