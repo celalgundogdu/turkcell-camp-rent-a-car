@@ -12,6 +12,8 @@ import com.turkcellcamp.rentacar.entities.Brand;
 import com.turkcellcamp.rentacar.repository.BrandRepository;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,6 +27,7 @@ public class BrandServiceImpl implements BrandService {
     private final ModelMapper mapper;
 
     @Override
+    @Cacheable(value = "brands")
     public List<GetAllBrandsResponse> getAll() {
         List<Brand> brandList = brandRepository.findAll();
         List<GetAllBrandsResponse> response = brandList
@@ -36,6 +39,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
+    @Cacheable(value = "brands", key = "#id")
     public GetBrandResponse getById(int id) {
         rules.checkIfBrandExistsById(id);
         Brand brand =  brandRepository.findById(id).orElseThrow();
@@ -44,6 +48,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
+    @CacheEvict(value = "brands", allEntries = true)
     public CreateBrandResponse add(CreateBrandRequest request) {
         rules.checkIfBrandExistsByName(request.getName());
         Brand brand = mapper.map(request, Brand.class);
@@ -54,6 +59,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
+    @CacheEvict(value = "brands", allEntries = true)
     public UpdateBrandResponse update(int id, UpdateBrandRequest request) {
         rules.checkIfBrandExistsById(id);
         Brand brand = mapper.map(request, Brand.class);
@@ -64,6 +70,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
+    @CacheEvict(value = "brands", allEntries = true)
     public void delete(int id) {
         rules.checkIfBrandExistsById(id);
         brandRepository.deleteById(id);
